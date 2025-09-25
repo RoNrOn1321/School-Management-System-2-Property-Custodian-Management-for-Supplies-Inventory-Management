@@ -234,6 +234,34 @@ INSERT INTO users (username, password, full_name, email, role, department) VALUE
 ('custodian', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Property Custodian', 'custodian@school.edu', 'custodian', 'Property Office'),
 ('staff', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Staff Member', 'staff@school.edu', 'staff', 'General Office');
 
+-- Asset tags for categorization and filtering
+CREATE TABLE asset_tags (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(50) NOT NULL,
+    color VARCHAR(7) DEFAULT '#3B82F6',
+    description TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Asset tag relationships (many-to-many)
+CREATE TABLE asset_tag_relationships (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    asset_id INT NOT NULL,
+    tag_id INT NOT NULL,
+    assigned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (asset_id) REFERENCES assets(id) ON DELETE CASCADE,
+    FOREIGN KEY (tag_id) REFERENCES asset_tags(id) ON DELETE CASCADE,
+    UNIQUE KEY unique_asset_tag (asset_id, tag_id)
+);
+
+-- Insert default asset tags
+INSERT INTO asset_tags (name, color, description) VALUES
+('High Priority', '#EF4444', 'High priority assets requiring special attention'),
+('Fragile', '#F59E0B', 'Fragile items requiring careful handling'),
+('Portable', '#10B981', 'Portable items that can be easily moved'),
+('Expensive', '#8B5CF6', 'High-value assets requiring extra security'),
+('Shared', '#06B6D4', 'Shared resources used by multiple departments');
+
 -- Insert default asset categories
 INSERT INTO asset_categories (name, description) VALUES
 ('Computer Equipment', 'Desktop computers, laptops, monitors, keyboards, etc.'),

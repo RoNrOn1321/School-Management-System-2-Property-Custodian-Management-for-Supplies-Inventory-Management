@@ -20,18 +20,6 @@ ob_start();
     <!-- Main Content -->
     <main class="ml-64 flex-1 overflow-x-hidden">
         <div class="p-8">
-            <div class="flex items-center justify-between mb-8">
-                <h1 class="text-3xl font-bold text-gray-900">Asset Registry & Tagging</h1>
-                <div class="flex items-center gap-4">
-                    <button onclick="App.openAssetModal()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition duration-200">
-                        <i class="fas fa-plus mr-2"></i>Add Asset
-                    </button>
-                    <button onclick="App.openTagModal()" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition duration-200">
-                        <i class="fas fa-tag mr-2"></i>Manage Tags
-                    </button>
-                </div>
-            </div>
-
             <?php include 'components/asset-registry.php'; ?>
         </div>
     </main>

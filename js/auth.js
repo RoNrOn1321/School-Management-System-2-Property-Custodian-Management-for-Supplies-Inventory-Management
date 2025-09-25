@@ -82,14 +82,31 @@ class Auth {
     }
 
     static showMainApp() {
-        document.getElementById('loginScreen').style.display = 'none';
-        document.getElementById('mainApp').classList.remove('hidden');
+        const loginScreen = document.getElementById('loginScreen');
+        const mainApp = document.getElementById('mainApp');
+
+        if (loginScreen) {
+            loginScreen.style.display = 'none';
+        }
+        if (mainApp) {
+            mainApp.classList.remove('hidden');
+        }
 
         // Update user info in the sidebar
         if (this.currentUser) {
-            document.getElementById('currentUsername').textContent = this.currentUser.full_name;
-            document.getElementById('currentRole').textContent = this.currentUser.role.charAt(0).toUpperCase() + this.currentUser.role.slice(1);
-            document.getElementById('welcomeUser').textContent = this.currentUser.full_name;
+            const currentUsername = document.getElementById('currentUsername');
+            const currentRole = document.getElementById('currentRole');
+            const welcomeUser = document.getElementById('welcomeUser');
+
+            if (currentUsername) {
+                currentUsername.textContent = this.currentUser.full_name;
+            }
+            if (currentRole) {
+                currentRole.textContent = this.currentUser.role.charAt(0).toUpperCase() + this.currentUser.role.slice(1);
+            }
+            if (welcomeUser) {
+                welcomeUser.textContent = this.currentUser.full_name;
+            }
         }
 
         // Load dashboard

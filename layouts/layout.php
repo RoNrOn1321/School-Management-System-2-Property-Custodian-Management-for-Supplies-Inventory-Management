@@ -23,7 +23,13 @@
     <?php echo $content; ?>
 
     <!-- Scripts -->
-    <script src="js/auth.js"></script>
+    <?php
+    // Only load auth.js on pages that need it
+    $currentPage = basename($_SERVER['PHP_SELF']);
+    if ($currentPage === 'index.php' || $currentPage === 'dashboard.php') {
+        echo '<script src="js/auth.js"></script>';
+    }
+    ?>
     <?php if (isset($additionalScripts)) echo $additionalScripts; ?>
 </body>
 </html>

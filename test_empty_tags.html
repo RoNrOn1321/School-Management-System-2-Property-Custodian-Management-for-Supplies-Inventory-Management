@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Empty Tags Update</title>
+    <script>
+        async function testEmptyTagsUpdate() {
+            console.log('Testing empty tags update...');
+
+            // Simulate asset ID and empty tags
+            const assetId = 1; // Use an existing asset ID
+            const emptyTags = []; // Empty array to test clearing all tags
+
+            try {
+                // First, let's see what tags are currently on the asset
+                console.log('Fetching current tags for asset:', assetId);
+                const response = await fetch(`./api/asset_tags.php?asset_id=${assetId}`);
+
+                if (response.ok) {
+                    const currentTags = await response.json();
+                    console.log('Current tags:', currentTags);
+
+                    if (currentTags.length > 0) {
+                        console.log(`Asset ${assetId} has ${currentTags.length} tags. Testing removal of all tags...`);
+
+                        // Test the updateAssetTags function with empty array
+                        await testUpdateFunction(assetId, emptyTags);
+                    } else {
+                        console.log(`Asset ${assetId} has no tags. This is perfect for testing.`);
+                        console.log('Empty tag update should work without errors.');
+                    }
+                } else {
+                    console.log('No current tags (404) or error fetching tags');
+                    // Test with empty tags anyway
+                    await testUpdateFunction(assetId, emptyTags);
+                }
+            } catch (error) {
+                console.error('Test failed:', error);
+            }
+        }
+
+        async function testUpdateFunction(assetId, newTags) {
+            console.log(`Testing updateAssetTags with asset ${assetId} and tags:`, newTags);
+
+            // Ensure newTags is a valid array
+            if (!Array.isArray(newTags)) newTags = [];
+
+            let currentTags = [];
+
+            try {
+                // First, get current tags for the asset
+                const response = await fetch(`./api/asset_tags.php?asset_id=${assetId}`);
+
+                if (response.ok) {
+                    const responseText = await response.text();
+                    if (responseText.trim()) {
+                        currentTags = JSON.parse(responseText);
+                    }
+                } else if (response.status !== 404) {
+                    console.warn(`Failed to fetch current tags: ${response.status}`);
+                }
+            } catch (fetchError) {
+                console.log('Error fetching current tags, assuming no current tags:', fetchError.message);
+                currentTags = [];
+            }
+
+            // Ensure currentTags is a valid array
+            if (!Array.isArray(currentTags)) currentTags = [];
+
+            const currentTagIds = currentTags.map(tag => parseInt(tag.id));
+            const newTagIds = newTags.map(tag => parseInt(tag.id));
+
+            // Find tags to remove (in current but not in new)
+            const tagsToRemove = currentTagIds.filter(id => !newTagIds.includes(id));
+
+            // Find tags to add (in new but not in current)
+            const tagsToAdd = newTagIds.filter(id => !currentTagIds.includes(id));
+
+            console.log('Tags to remove:', tagsToRemove);
+            console.log('Tags to add:', tagsToAdd);
+
+            // Remove tags
+            for (const tagId of tagsToRemove) {
+                try {
+                    const removeResponse = await fetch('./api/asset_tags.php?unassign=1', {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            asset_id: parseInt(assetId),
+                            tag_id: parseInt(tagId)
+                        })
+                    });
+
+                    if (!removeResponse.ok) {
+                        const errorText = await removeResponse.text().catch(() => 'Unknown error');
+                        console.warn('Failed to remove tag:', tagId, errorText);
+                    } else {
+                        console.log('Successfully removed tag:', tagId);
+                    }
+                } catch (error) {
+                    console.error('Error removing tag:', tagId, error.message);
+                }
+            }
+
+            // Add new tags
+            for (const tagId of tagsToAdd) {
+                try {
+                    const addResponse = await fetch('./api/asset_tags.php?assign=1', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            asset_id: parseInt(assetId),
+                            tag_id: parseInt(tagId)
+                        })
+                    });
+
+                    if (!addResponse.ok) {
+                        const errorText = await addResponse.text().catch(() => 'Unknown error');
+                        console.warn('Failed to add tag:', tagId, errorText);
+                    } else {
+                        console.log('Successfully added tag:', tagId);
+                    }
+                } catch (error) {
+                    console.error('Error adding tag:', tagId, error.message);
+                }
+            }
+
+            if (tagsToAdd.length > 0 || tagsToRemove.length > 0) {
+                console.log(`Tags updated: ${tagsToAdd.length} added, ${tagsToRemove.length} removed`);
+            } else {
+                console.log('No tag changes needed');
+            }
+        }
+
+        // Run test when page loads
+        window.onload = function() {
+            testEmptyTagsUpdate();
+        };
+    </script>
+</head>
+<body>
+    <h1>Empty Tags Update Test</h1>
+    <p>Check the browser console for test results.</p>
+    <p>This test verifies that empty tags can be properly handled during asset updates.</p>
+</body>
+</html>

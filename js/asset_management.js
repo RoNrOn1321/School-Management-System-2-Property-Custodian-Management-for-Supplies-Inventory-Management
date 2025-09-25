@@ -5,6 +5,14 @@ let currentAssets = [];
 let allTags = [];
 let allCategories = [];
 let selectedAssetTags = [];
+let currentPagination = {
+    current_page: 1,
+    total_pages: 1,
+    total_items: 0,
+    per_page: 10,
+    has_next: false,
+    has_previous: false
+};
 
 // Initialize Asset Management
 function initAssetManagement() {
@@ -67,7 +75,7 @@ async function loadTags() {
 }
 
 // Load Assets
-async function loadAssets(filters = {}) {
+async function loadAssets(filters = {}, page = 1, limit = 10) {
     try {
         let url = './api/assets.php';
         const params = new URLSearchParams();
@@ -77,17 +85,52 @@ async function loadAssets(filters = {}) {
         if (filters.status) params.append('status', filters.status);
         if (filters.tag) params.append('tag', filters.tag);
 
+        // Add pagination parameters
+        params.append('page', page);
+        params.append('limit', limit);
+
         if (params.toString()) {
             url += '?' + params.toString();
         }
 
         const response = await fetch(url);
         if (response.ok) {
-            currentAssets = await response.json();
+            const data = await response.json();
+
+            // Handle both old format (array) and new format (object with assets and pagination)
+            if (Array.isArray(data)) {
+                // Old format - no pagination
+                currentAssets = data;
+                currentPagination = {
+                    current_page: 1,
+                    total_pages: 1,
+                    total_items: data.length,
+                    per_page: data.length,
+                    has_next: false,
+                    has_previous: false
+                };
+            } else {
+                // New format with pagination
+                currentAssets = data.assets || [];
+                currentPagination = data.pagination || {
+                    current_page: 1,
+                    total_pages: 1,
+                    total_items: 0,
+                    per_page: limit,
+                    has_next: false,
+                    has_previous: false
+                };
+            }
+
             renderAssetsTable();
+            renderPagination();
+        } else {
+            console.error('Failed to load assets:', response.status);
+            showNotification('Failed to load assets', 'error');
         }
     } catch (error) {
         console.error('Error loading assets:', error);
+        showNotification('Error loading assets: ' + error.message, 'error');
     }
 }
 
@@ -250,7 +293,104 @@ function filterAssets() {
         tag: document.getElementById('tagFilter').value
     };
 
-    loadAssets(filters);
+    // Reset to page 1 when filtering
+    loadAssets(filters, 1, currentPagination.per_page);
+}
+
+// Render Pagination
+function renderPagination() {
+    const paginationInfo = document.getElementById('paginationInfo');
+    const paginationControls = document.getElementById('paginationControls');
+    const mobilePagination = document.getElementById('mobilePagination');
+
+    if (!paginationInfo || !paginationControls) return;
+
+    // Update pagination info
+    const startItem = currentPagination.total_items === 0 ? 0 : ((currentPagination.current_page - 1) * currentPagination.per_page) + 1;
+    const endItem = Math.min(currentPagination.current_page * currentPagination.per_page, currentPagination.total_items);
+
+    paginationInfo.innerHTML = `
+        Showing <span class="font-medium">${startItem}</span> to
+        <span class="font-medium">${endItem}</span> of
+        <span class="font-medium">${currentPagination.total_items}</span> results
+    `;
+
+    // Generate page numbers to show
+    const maxVisiblePages = 5;
+    let startPage = Math.max(1, currentPagination.current_page - Math.floor(maxVisiblePages / 2));
+    let endPage = Math.min(currentPagination.total_pages, startPage + maxVisiblePages - 1);
+
+    // Adjust start page if we're near the end
+    if (endPage - startPage + 1 < maxVisiblePages) {
+        startPage = Math.max(1, endPage - maxVisiblePages + 1);
+    }
+
+    // Build pagination controls
+    let paginationHTML = '';
+
+    // Previous button
+    paginationHTML += `
+        <button onclick="goToPage(${currentPagination.current_page - 1})"
+                ${!currentPagination.has_previous ? 'disabled' : ''}
+                class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 ${!currentPagination.has_previous ? 'cursor-not-allowed opacity-50' : ''}">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+    `;
+
+    // Page numbers
+    for (let i = startPage; i <= endPage; i++) {
+        const isActive = i === currentPagination.current_page;
+        paginationHTML += `
+            <button onclick="goToPage(${i})"
+                    class="${isActive
+                        ? 'bg-blue-50 border-blue-500 text-blue-600'
+                        : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'}
+                    relative inline-flex items-center px-4 py-2 border text-sm font-medium">
+                ${i}
+            </button>
+        `;
+    }
+
+    // Next button
+    paginationHTML += `
+        <button onclick="goToPage(${currentPagination.current_page + 1})"
+                ${!currentPagination.has_next ? 'disabled' : ''}
+                class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 ${!currentPagination.has_next ? 'cursor-not-allowed opacity-50' : ''}">
+            <i class="fas fa-chevron-right"></i>
+        </button>
+    `;
+
+    paginationControls.innerHTML = paginationHTML;
+
+    // Update mobile pagination
+    if (mobilePagination) {
+        mobilePagination.innerHTML = `
+            <button onclick="goToPage(${currentPagination.current_page - 1})"
+                    ${!currentPagination.has_previous ? 'disabled' : ''}
+                    class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 ${!currentPagination.has_previous ? 'cursor-not-allowed opacity-50' : ''}">
+                Previous
+            </button>
+            <button onclick="goToPage(${currentPagination.current_page + 1})"
+                    ${!currentPagination.has_next ? 'disabled' : ''}
+                    class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 ${!currentPagination.has_next ? 'cursor-not-allowed opacity-50' : ''}">
+                Next
+            </button>
+        `;
+    }
+}
+
+// Go to specific page
+function goToPage(page) {
+    if (page < 1 || page > currentPagination.total_pages) return;
+
+    const filters = {
+        search: document.getElementById('searchAssets').value,
+        category: document.getElementById('categoryFilter').value,
+        status: document.getElementById('statusFilter').value,
+        tag: document.getElementById('tagFilter').value
+    };
+
+    loadAssets(filters, page, currentPagination.per_page);
 }
 
 // Modal Functions
@@ -259,10 +399,19 @@ window.App = window.App || {};
 App.openAssetModal = function(assetId = null) {
     selectedAssetTags = [];
 
+    // Show modal first
+    document.getElementById('assetModal').classList.remove('hidden');
+
     if (assetId) {
         // Edit mode
         document.getElementById('assetModalTitle').textContent = 'Edit Asset';
         document.getElementById('assetSubmitText').textContent = 'Update Asset';
+
+        // Clear form first to show loading state
+        document.getElementById('assetForm').reset();
+        document.getElementById('assetId').value = assetId;
+
+        // Load asset data
         loadAssetForEdit(assetId);
     } else {
         // Add mode
@@ -272,8 +421,6 @@ App.openAssetModal = function(assetId = null) {
         document.getElementById('assetId').value = '';
         updateSelectedTagsDisplay();
     }
-
-    document.getElementById('assetModal').classList.remove('hidden');
 };
 
 App.closeAssetModal = function() {
@@ -313,58 +460,108 @@ async function handleAssetSubmit(event) {
             body: JSON.stringify(assetData)
         });
 
-        const result = await response.json();
+        const responseText = await response.text();
+        console.log('Raw API response:', responseText);
+        console.log('Response status:', response.status);
+        console.log('Response headers:', [...response.headers.entries()]);
+
+        let result;
+        try {
+            result = JSON.parse(responseText);
+        } catch (parseError) {
+            console.error('JSON parse error:', parseError);
+            console.error('Response was:', responseText);
+            throw new Error('Server returned invalid response: ' + responseText.substring(0, 200));
+        }
 
         if (response.ok) {
             showNotification(result.message, 'success');
             App.closeAssetModal();
 
+            // Show loading indicator
+            showNotification('Refreshing asset list...', 'info');
+
             // Handle tag assignments for new assets
-            if (!assetId && selectedAssetTags.length > 0) {
-                await assignTagsToAsset(result.id, selectedAssetTags);
-            } else if (assetId && selectedAssetTags.length > 0) {
-                await updateAssetTags(assetId, selectedAssetTags);
+            try {
+                if (!assetId && selectedAssetTags.length > 0) {
+                    await assignTagsToAsset(result.id, selectedAssetTags);
+                } else if (assetId) {
+                    // Always update tags for existing assets (even if empty to remove existing tags)
+                    await updateAssetTags(assetId, selectedAssetTags);
+                }
+            } catch (tagError) {
+                console.error('Tag operation failed:', tagError);
+                showNotification('Asset saved, but tag update failed', 'warning');
             }
 
-            loadAssets();
+            const filters = {
+                search: document.getElementById('searchAssets').value,
+                category: document.getElementById('categoryFilter').value,
+                status: document.getElementById('statusFilter').value,
+                tag: document.getElementById('tagFilter').value
+            };
+            await loadAssets(filters, currentPagination.current_page, currentPagination.per_page);
+
+            // Highlight the updated row temporarily
+            if (assetId) {
+                highlightUpdatedAsset(assetId);
+            }
+
+            showNotification('Asset list updated successfully!', 'success');
         } else {
             showNotification(result.message, 'error');
         }
     } catch (error) {
         console.error('Error saving asset:', error);
-        showNotification('Error saving asset', 'error');
+        showNotification('Error saving asset: ' + error.message, 'error');
     }
 }
 
 // Load Asset for Edit
 async function loadAssetForEdit(assetId) {
     try {
+        showNotification('Loading asset data...', 'info');
         const response = await fetch(`./api/assets.php?id=${assetId}`);
+
         if (response.ok) {
             const asset = await response.json();
-
-            // Populate form fields
-            document.getElementById('assetId').value = asset.id;
+    
+            // Populate form fields with proper validation
+            document.getElementById('assetId').value = asset.id || '';
             document.getElementById('assetCode').value = asset.asset_code || '';
             document.getElementById('assetName').value = asset.name || '';
             document.getElementById('assetDescription').value = asset.description || '';
-            document.getElementById('assetCategory').value = asset.category_id || '';
-            document.getElementById('assetStatus').value = asset.status || '';
-            document.getElementById('assetBrand').value = asset.brand || '';
-            document.getElementById('assetModel').value = asset.model || '';
-            document.getElementById('assetSerialNumber').value = asset.serial_number || '';
+            document.getElementById('assetCategory').value = asset.category || '';
+            document.getElementById('assetStatus').value = asset.status || 'available';
             document.getElementById('assetLocation').value = asset.location || '';
             document.getElementById('assetPurchaseDate').value = asset.purchase_date || '';
             document.getElementById('assetPurchaseCost').value = asset.purchase_cost || '';
             document.getElementById('assetCurrentValue').value = asset.current_value || '';
 
+            // Handle condition status if field exists
+            const conditionField = document.getElementById('assetConditionStatus');
+            if (conditionField) {
+                conditionField.value = asset.condition_status || 'good';
+            }
+
+            // Handle assigned to if field exists
+            const assignedField = document.getElementById('assetAssignedTo');
+            if (assignedField) {
+                assignedField.value = asset.assigned_to || '';
+            }
+
             // Set selected tags
             selectedAssetTags = asset.tags || [];
             updateSelectedTagsDisplay();
+
+            showNotification('Asset data loaded successfully', 'success');
+        } else {
+            const error = await response.json();
+            showNotification(error.message || 'Error loading asset', 'error');
         }
     } catch (error) {
         console.error('Error loading asset:', error);
-        showNotification('Error loading asset', 'error');
+        showNotification('Error loading asset: ' + error.message, 'error');
     }
 }
 
@@ -388,7 +585,13 @@ async function deleteAsset(assetId) {
 
         if (response.ok) {
             showNotification(result.message, 'success');
-            loadAssets();
+            const filters = {
+                search: document.getElementById('searchAssets').value,
+                category: document.getElementById('categoryFilter').value,
+                status: document.getElementById('statusFilter').value,
+                tag: document.getElementById('tagFilter').value
+            };
+            loadAssets(filters, currentPagination.current_page, currentPagination.per_page);
         } else {
             showNotification(result.message, 'error');
         }
@@ -524,13 +727,108 @@ async function assignTagsToAsset(assetId, tags) {
 
 // Update Asset Tags (for edit mode)
 async function updateAssetTags(assetId, newTags) {
-    // This is a simplified approach - in a real app you'd want to
-    // compare current tags with new tags and only make necessary changes
+    try {
+        console.log('Updating tags for asset:', assetId, 'New tags:', newTags);
 
-    // For now, we'll just show a notification
-    // The full implementation would involve fetching current tags,
-    // comparing, and making appropriate assign/unassign calls
-    console.log('Tag updates would be implemented here for asset:', assetId);
+        // Ensure newTags is a valid array
+        if (!Array.isArray(newTags)) newTags = [];
+
+        let currentTags = [];
+
+        try {
+            // First, get current tags for the asset
+            const response = await fetch(`./api/asset_tags.php?asset_id=${assetId}`);
+
+            if (response.ok) {
+                const responseText = await response.text();
+                if (responseText.trim()) {
+                    currentTags = JSON.parse(responseText);
+                }
+            } else if (response.status !== 404) {
+                // Only throw error for non-404 errors (404 means no tags, which is fine)
+                console.warn(`Failed to fetch current tags: ${response.status}`);
+            }
+        } catch (fetchError) {
+            console.log('Error fetching current tags, assuming no current tags:', fetchError.message);
+            currentTags = [];
+        }
+
+        // Ensure currentTags is a valid array
+        if (!Array.isArray(currentTags)) currentTags = [];
+
+        const currentTagIds = currentTags.map(tag => parseInt(tag.id));
+        const newTagIds = newTags.map(tag => parseInt(tag.id));
+
+        // Find tags to remove (in current but not in new)
+        const tagsToRemove = currentTagIds.filter(id => !newTagIds.includes(id));
+
+        // Find tags to add (in new but not in current)
+        const tagsToAdd = newTagIds.filter(id => !currentTagIds.includes(id));
+
+        console.log('Tags to remove:', tagsToRemove);
+        console.log('Tags to add:', tagsToAdd);
+
+        // Remove tags
+        for (const tagId of tagsToRemove) {
+            try {
+                const removeResponse = await fetch('./api/asset_tags.php?unassign=1', {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        asset_id: parseInt(assetId),
+                        tag_id: parseInt(tagId)
+                    })
+                });
+
+                if (!removeResponse.ok) {
+                    const errorText = await removeResponse.text().catch(() => 'Unknown error');
+                    console.warn('Failed to remove tag:', tagId, errorText);
+                } else {
+                    console.log('Successfully removed tag:', tagId);
+                }
+            } catch (error) {
+                console.error('Error removing tag:', tagId, error.message);
+            }
+        }
+
+        // Add new tags
+        for (const tagId of tagsToAdd) {
+            try {
+                const addResponse = await fetch('./api/asset_tags.php?assign=1', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        asset_id: parseInt(assetId),
+                        tag_id: parseInt(tagId)
+                    })
+                });
+
+                if (!addResponse.ok) {
+                    const errorText = await addResponse.text().catch(() => 'Unknown error');
+                    console.warn('Failed to add tag:', tagId, errorText);
+                } else {
+                    console.log('Successfully added tag:', tagId);
+                }
+            } catch (error) {
+                console.error('Error adding tag:', tagId, error.message);
+            }
+        }
+
+        if (tagsToAdd.length > 0 || tagsToRemove.length > 0) {
+            showNotification(`Tags updated: ${tagsToAdd.length} added, ${tagsToRemove.length} removed`, 'success');
+        } else {
+            console.log('No tag changes needed');
+        }
+
+    } catch (error) {
+        console.error('Error updating asset tags:', error);
+        // Don't show error notification for tag updates to avoid disrupting main save flow
+        console.log('Tag update failed but continuing with asset save');
+    }
 }
 
 // QR Code Functions
@@ -548,7 +846,13 @@ async function generateQRCode(assetId) {
 
         if (response.ok) {
             showNotification(result.message, 'success');
-            loadAssets(); // Refresh to show QR code icon
+            const filters = {
+                search: document.getElementById('searchAssets').value,
+                category: document.getElementById('categoryFilter').value,
+                status: document.getElementById('statusFilter').value,
+                tag: document.getElementById('tagFilter').value
+            };
+            loadAssets(filters, currentPagination.current_page, currentPagination.per_page); // Refresh to show QR code icon
         } else {
             showNotification(result.message, 'error');
         }
@@ -692,6 +996,29 @@ function bulkAddTag(checkboxes) {
 // Bulk Remove Tag
 function bulkRemoveTag(checkboxes) {
     showNotification('Bulk tag operations not fully implemented yet', 'info');
+}
+
+// Highlight Updated Asset
+function highlightUpdatedAsset(assetId) {
+    setTimeout(() => {
+        // Find the table row with the updated asset
+        const rows = document.querySelectorAll('#assetsTableBody tr');
+        rows.forEach(row => {
+            const checkbox = row.querySelector('input[name="assetSelect"]');
+            if (checkbox && checkbox.value == assetId) {
+                // Add highlight effect
+                row.style.backgroundColor = '#10B981';
+                row.style.color = 'white';
+                row.style.transition = 'all 0.5s ease';
+
+                // Remove highlight after 3 seconds
+                setTimeout(() => {
+                    row.style.backgroundColor = '';
+                    row.style.color = '';
+                }, 3000);
+            }
+        });
+    }, 100);
 }
 
 // Notification Function
