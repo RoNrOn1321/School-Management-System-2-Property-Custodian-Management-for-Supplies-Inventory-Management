@@ -17,13 +17,22 @@ ob_start();
 <div class="min-h-screen flex">
     <?php include 'components/sidebar.php'; ?>
 
+    <!-- Mobile Header -->
+    <div class="lg:hidden fixed top-0 left-0 right-0 bg-white shadow-md z-30 px-4 py-3 flex justify-between items-center">
+        <button onclick="toggleMobileMenu()" class="p-2 text-gray-600">
+            <i class="fas fa-bars text-xl"></i>
+        </button>
+        <h1 class="text-lg font-semibold text-gray-800">Dashboard</h1>
+        <div class="w-8"></div>
+    </div>
+
     <!-- Main Content -->
-    <main class="ml-64 flex-1 overflow-x-hidden">
-        <div class="p-8">
-            <div class="flex items-center justify-between mb-8">
-                <h1 class="text-3xl font-bold text-gray-900">Dashboard</h1>
+    <main class="flex-1 lg:ml-64 overflow-x-hidden">
+        <div class="p-4 lg:p-8 pt-16 lg:pt-8">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 gap-4">
+                <h1 class="text-2xl lg:text-3xl font-bold text-gray-900">Dashboard</h1>
                 <div class="flex items-center gap-4">
-                    <button onclick="Dashboard.refreshData()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition duration-200">
+                    <button onclick="Dashboard.refreshData()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition duration-200 w-full sm:w-auto">
                         <i class="fas fa-sync-alt mr-2"></i>Refresh
                     </button>
                 </div>

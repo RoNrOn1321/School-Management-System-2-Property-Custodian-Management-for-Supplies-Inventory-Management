@@ -17,24 +17,33 @@ ob_start();
 <div class="min-h-screen flex">
     <?php include 'components/sidebar.php'; ?>
 
+    <!-- Mobile Header -->
+    <div class="lg:hidden fixed top-0 left-0 right-0 bg-white shadow-md z-30 px-4 py-3 flex justify-between items-center">
+        <button onclick="toggleMobileMenu()" class="p-2 text-gray-600">
+            <i class="fas fa-bars text-xl"></i>
+        </button>
+        <h1 class="text-lg font-semibold text-gray-800">Supplies Inventory</h1>
+        <div class="w-8"></div>
+    </div>
+
     <!-- Main Content -->
-    <main class="ml-64 flex-1 overflow-x-hidden">
-        <div class="p-8">
-            <div class="flex items-center justify-between mb-8">
-                <h1 class="text-3xl font-bold text-gray-900">Supplies Inventory</h1>
-                <div class="flex items-center gap-4">
-                    <button class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition duration-200">
+    <main class="flex-1 lg:ml-64 overflow-x-hidden">
+        <div class="p-4 lg:p-8 pt-16 lg:pt-8">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 gap-4">
+                <h1 class="text-2xl lg:text-3xl font-bold text-gray-900">Supplies Inventory</h1>
+                <div class="flex flex-col sm:flex-row items-center gap-2 sm:gap-4">
+                    <button class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition duration-200 w-full sm:w-auto">
                         <i class="fas fa-plus mr-2"></i>Add Supply Item
                     </button>
-                    <button class="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg transition duration-200">
+                    <button class="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg transition duration-200 w-full sm:w-auto">
                         <i class="fas fa-exchange-alt mr-2"></i>Stock Transaction
                     </button>
                 </div>
             </div>
 
             <!-- Filters and Search -->
-            <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="bg-white rounded-lg shadow-md p-4 lg:p-6 mb-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Search</label>
                         <input type="text" placeholder="Search supplies..." class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
@@ -73,22 +82,22 @@ ob_start();
 
             <!-- Supplies Table -->
             <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                <div class="overflow-x-auto">
+                <div class="table-responsive">
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                             <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th class="px-3 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     <input type="checkbox" class="rounded">
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Item Code</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Item Name</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Current Stock</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Min. Stock</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unit Cost</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Expiry Date</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                <th class="px-3 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Item Code</th>
+                                <th class="px-3 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Item Name</th>
+                                <th class="px-3 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">Category</th>
+                                <th class="px-3 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stock</th>
+                                <th class="px-3 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">Min. Stock</th>
+                                <th class="px-3 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">Unit Cost</th>
+                                <th class="px-3 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden xl:table-cell">Expiry Date</th>
+                                <th class="px-3 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                <th class="px-3 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                             </tr>
                         </thead>
                         <tbody id="suppliesTableBody" class="bg-white divide-y divide-gray-200">
@@ -101,7 +110,7 @@ ob_start();
             </div>
 
             <!-- Summary Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mt-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mt-6">
                 <div class="bg-white rounded-lg shadow-md p-6">
                     <div class="flex items-center">
                         <div class="flex-shrink-0">

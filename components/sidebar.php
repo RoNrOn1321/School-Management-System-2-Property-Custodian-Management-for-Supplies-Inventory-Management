@@ -1,5 +1,8 @@
+<!-- Mobile Menu Overlay -->
+<div class="mobile-menu-overlay" id="mobileMenuOverlay" onclick="toggleMobileMenu()"></div>
+
 <!-- Sidebar -->
-<nav class="bg-white shadow-lg w-64 fixed h-full overflow-y-auto">
+<nav class="bg-white shadow-lg w-64 fixed h-full overflow-y-auto sidebar-mobile lg:translate-x-0 z-50" id="sidebar">
     <div class="p-6 border-b border-gray-200">
         <img src="logos/logo.jpg" alt="School Logo" class="h-12 w-12 rounded-full mx-auto mb-2">
         <h2 class="text-lg font-bold text-gray-800 text-center">Property Custodian</h2>
@@ -55,3 +58,25 @@
         </button>
     </div>
 </nav>
+
+<script>
+function toggleMobileMenu() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('mobileMenuOverlay');
+
+    sidebar.classList.toggle('active');
+    overlay.classList.toggle('active');
+}
+
+// Close mobile menu when clicking on a menu item
+document.addEventListener('DOMContentLoaded', function() {
+    const menuItems = document.querySelectorAll('.menu-item');
+    menuItems.forEach(item => {
+        item.addEventListener('click', function() {
+            if (window.innerWidth <= 1024) {
+                toggleMobileMenu();
+            }
+        });
+    });
+});
+</script>

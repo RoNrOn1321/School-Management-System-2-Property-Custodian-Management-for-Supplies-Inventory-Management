@@ -1,15 +1,15 @@
 <!-- Asset Registry Module -->
 <div class="mb-8">
-    <div class="flex justify-between items-center mb-6">
-        <h1 class="text-3xl font-bold text-gray-800">Asset Registry & Tagging</h1>
-        <button onclick="App.openAssetModal()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 gap-4">
+        <h1 class="text-2xl lg:text-3xl font-bold text-gray-800">Asset Registry & Tagging</h1>
+        <button onclick="App.openAssetModal()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 w-full sm:w-auto">
             <i class="fas fa-plus mr-2"></i>Add Asset
         </button>
     </div>
 
     <!-- Filter and Search -->
-    <div class="bg-white rounded-lg shadow p-6 mb-6">
-        <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-4">
+    <div class="bg-white rounded-lg shadow p-4 lg:p-6 mb-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-4">
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">Search</label>
                 <input type="text" id="searchAssets" placeholder="Search assets..."
@@ -41,7 +41,7 @@
                     <!-- Tags will be loaded dynamically -->
                 </select>
             </div>
-            <div class="flex items-end">
+            <div class="flex items-end sm:col-span-2 lg:col-span-1">
                 <button onclick="filterAssets()" class="w-full bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700">
                     <i class="fas fa-filter mr-2"></i>Filter
                 </button>
@@ -50,39 +50,39 @@
 
         <!-- Quick Actions -->
         <div class="flex flex-wrap gap-2 pt-4 border-t border-gray-200">
-            <button onclick="App.openTagModal()" class="bg-green-600 text-white px-3 py-2 rounded-md hover:bg-green-700 text-sm">
-                <i class="fas fa-tags mr-1"></i>Manage Tags
+            <button onclick="App.openTagModal()" class="bg-green-600 text-white px-3 py-2 rounded-md hover:bg-green-700 text-sm flex-1 sm:flex-initial">
+                <i class="fas fa-tags mr-1"></i><span class="hidden sm:inline">Manage </span>Tags
             </button>
-            <button onclick="exportAssets()" class="bg-purple-600 text-white px-3 py-2 rounded-md hover:bg-purple-700 text-sm">
+            <button onclick="exportAssets()" class="bg-purple-600 text-white px-3 py-2 rounded-md hover:bg-purple-700 text-sm flex-1 sm:flex-initial">
                 <i class="fas fa-download mr-1"></i>Export
             </button>
-            <button onclick="bulkActions()" class="bg-orange-600 text-white px-3 py-2 rounded-md hover:bg-orange-700 text-sm">
-                <i class="fas fa-tasks mr-1"></i>Bulk Actions
+            <button onclick="bulkActions()" class="bg-orange-600 text-white px-3 py-2 rounded-md hover:bg-orange-700 text-sm flex-1 sm:flex-initial">
+                <i class="fas fa-tasks mr-1"></i><span class="hidden sm:inline">Bulk </span>Actions
             </button>
         </div>
     </div>
 
     <!-- Assets Table -->
     <div class="bg-white rounded-lg shadow overflow-hidden">
-        <div class="px-6 py-4 border-b border-gray-200">
+        <div class="px-4 lg:px-6 py-4 border-b border-gray-200">
             <h3 class="text-lg font-medium text-gray-900">Assets List</h3>
         </div>
-        <div class="overflow-x-auto">
+        <div class="table-responsive">
             <table class="min-w-full divide-y divide-gray-200" id="assetsTable">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th class="px-3 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             <input type="checkbox" id="selectAll" class="rounded">
                         </th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Asset Code</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tags</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">QR Code</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Value</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        <th class="px-3 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Asset Code</th>
+                        <th class="px-3 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                        <th class="px-3 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                        <th class="px-3 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">Tags</th>
+                        <th class="px-3 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th class="px-3 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">Location</th>
+                        <th class="px-3 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden xl:table-cell">QR Code</th>
+                        <th class="px-3 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">Value</th>
+                        <th class="px-3 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200" id="assetsTableBody">
