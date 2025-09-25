@@ -1,0 +1,125 @@
+// Authentication handler
+class Auth {
+    static currentUser = null;
+
+    static init() {
+        // Check if user is already logged in from session storage
+        const savedUser = sessionStorage.getItem('currentUser');
+        if (savedUser) {
+            this.currentUser = JSON.parse(savedUser);
+            this.showMainApp();
+        } else {
+            this.showLoginScreen();
+        }
+
+        // Setup event listeners
+        this.setupEventListeners();
+    }
+
+    static setupEventListeners() {
+        // Login form submission
+        const loginForm = document.getElementById('loginForm');
+        if (loginForm) {
+            loginForm.addEventListener('submit', this.handleLogin.bind(this));
+        }
+
+        // Logout button
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', this.handleLogout.bind(this));
+        }
+    }
+
+    static async handleLogin(event) {
+        event.preventDefault();
+
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+
+        if (!username || !password) {
+            showNotification('Please enter username and password', 'error');
+            return;
+        }
+
+        try {
+            const response = await API.login(username, password);
+            this.currentUser = response.user;
+
+            // Save user to session storage
+            sessionStorage.setItem('currentUser', JSON.stringify(this.currentUser));
+
+            showNotification('Login successful!', 'success');
+            this.showMainApp();
+
+        } catch (error) {
+            showNotification(error.message || 'Login failed', 'error');
+        }
+    }
+
+    static async handleLogout() {
+        try {
+            await API.logout();
+            this.currentUser = null;
+            sessionStorage.removeItem('currentUser');
+
+            showNotification('Logged out successfully', 'success');
+            this.showLoginScreen();
+
+        } catch (error) {
+            showNotification('Logout failed', 'error');
+        }
+    }
+
+    static showLoginScreen() {
+        document.getElementById('loginScreen').style.display = 'flex';
+        document.getElementById('mainApp').classList.add('hidden');
+
+        // Clear form
+        const loginForm = document.getElementById('loginForm');
+        if (loginForm) {
+            loginForm.reset();
+        }
+    }
+
+    static showMainApp() {
+        document.getElementById('loginScreen').style.display = 'none';
+        document.getElementById('mainApp').classList.remove('hidden');
+
+        // Update user info in the sidebar
+        if (this.currentUser) {
+            document.getElementById('currentUsername').textContent = this.currentUser.full_name;
+            document.getElementById('currentRole').textContent = this.currentUser.role.charAt(0).toUpperCase() + this.currentUser.role.slice(1);
+            document.getElementById('welcomeUser').textContent = this.currentUser.full_name;
+        }
+
+        // Load dashboard
+        App.showModule('dashboard');
+    }
+
+    static isLoggedIn() {
+        return this.currentUser !== null;
+    }
+
+    static hasRole(role) {
+        return this.currentUser && this.currentUser.role === role;
+    }
+
+    static hasPermission(permission) {
+        if (!this.currentUser) return false;
+
+        const permissions = {
+            'admin': ['view_all', 'create', 'update', 'delete', 'approve', 'audit'],
+            'custodian': ['view_all', 'create', 'update', 'assign'],
+            'staff': ['view_own', 'request'],
+            'maintenance': ['view_maintenance', 'update_maintenance']
+        };
+
+        const userPermissions = permissions[this.currentUser.role] || [];
+        return userPermissions.includes(permission);
+    }
+}
+
+// Initialize authentication when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    Auth.init();
+});
