@@ -8,15 +8,9 @@ class App {
     }
 
     static setupNavigation() {
-        const menuItems = document.querySelectorAll('.menu-item');
-        menuItems.forEach(item => {
-            item.addEventListener('click', (e) => {
-                e.preventDefault();
-                const module = item.getAttribute('data-module');
-                this.showModule(module);
-                this.setActiveMenuItem(item);
-            });
-        });
+        // Navigation is now handled by direct PHP page links
+        // No need to prevent default behavior anymore
+        console.log('Navigation setup: Using direct page navigation');
     }
 
     static setupModal() {

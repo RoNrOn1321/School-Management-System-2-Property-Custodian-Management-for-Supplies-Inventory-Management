@@ -23,10 +23,7 @@
     <?php echo $content; ?>
 
     <!-- Scripts -->
-    <script src="js/api.js"></script>
     <script src="js/auth.js"></script>
-    <script src="js/main.js"></script>
-    <script src="js/dashboard.js"></script>
     <?php if (isset($additionalScripts)) echo $additionalScripts; ?>
 </body>
 </html>

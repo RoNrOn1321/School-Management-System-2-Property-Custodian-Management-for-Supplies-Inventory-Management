@@ -7,37 +7,37 @@
     </div>
 
     <ul class="mt-6">
-        <li><a href="#" data-module="dashboard" class="menu-item flex items-center px-6 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 border-r-4 border-blue-600 bg-blue-50 text-blue-600">
+        <li><a href="dashboard.php" class="menu-item flex items-center px-6 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 <?php echo (basename($_SERVER['PHP_SELF']) == 'dashboard.php') ? 'border-r-4 border-blue-600 bg-blue-50 text-blue-600' : ''; ?>">
             <i class="fas fa-chart-line mr-3"></i> Dashboard
         </a></li>
-        <li><a href="#" data-module="asset-registry" class="menu-item flex items-center px-6 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600">
+        <li><a href="asset-registry.php" class="menu-item flex items-center px-6 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 <?php echo (basename($_SERVER['PHP_SELF']) == 'asset-registry.php') ? 'border-r-4 border-blue-600 bg-blue-50 text-blue-600' : ''; ?>">
             <i class="fas fa-tags mr-3"></i> Asset Registry & Tagging
         </a></li>
-        <li><a href="#" data-module="property-issuance" class="menu-item flex items-center px-6 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600">
+        <li><a href="property-issuance.php" class="menu-item flex items-center px-6 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 <?php echo (basename($_SERVER['PHP_SELF']) == 'property-issuance.php') ? 'border-r-4 border-blue-600 bg-blue-50 text-blue-600' : ''; ?>">
             <i class="fas fa-handshake mr-3"></i> Property Issuance
         </a></li>
-        <li><a href="#" data-module="supplies-inventory" class="menu-item flex items-center px-6 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600">
+        <li><a href="supplies-inventory.php" class="menu-item flex items-center px-6 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 <?php echo (basename($_SERVER['PHP_SELF']) == 'supplies-inventory.php') ? 'border-r-4 border-blue-600 bg-blue-50 text-blue-600' : ''; ?>">
             <i class="fas fa-boxes mr-3"></i> Supplies Inventory
         </a></li>
-        <li><a href="#" data-module="custodian-assignment" class="menu-item flex items-center px-6 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600">
+        <li><a href="custodian-assignment.php" class="menu-item flex items-center px-6 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 <?php echo (basename($_SERVER['PHP_SELF']) == 'custodian-assignment.php') ? 'border-r-4 border-blue-600 bg-blue-50 text-blue-600' : ''; ?>">
             <i class="fas fa-user-tie mr-3"></i> Custodian Assignment
         </a></li>
-        <li><a href="#" data-module="maintenance" class="menu-item flex items-center px-6 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600">
+        <li><a href="maintenance.php" class="menu-item flex items-center px-6 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 <?php echo (basename($_SERVER['PHP_SELF']) == 'maintenance.php') ? 'border-r-4 border-blue-600 bg-blue-50 text-blue-600' : ''; ?>">
             <i class="fas fa-wrench mr-3"></i> Preventive Maintenance
         </a></li>
-        <li><a href="#" data-module="damaged-items" class="menu-item flex items-center px-6 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600">
+        <li><a href="damaged-items.php" class="menu-item flex items-center px-6 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 <?php echo (basename($_SERVER['PHP_SELF']) == 'damaged-items.php') ? 'border-r-4 border-blue-600 bg-blue-50 text-blue-600' : ''; ?>">
             <i class="fas fa-exclamation-triangle mr-3"></i> Damaged Items
         </a></li>
-        <li><a href="#" data-module="property-audit" class="menu-item flex items-center px-6 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600">
+        <li><a href="property-audit.php" class="menu-item flex items-center px-6 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 <?php echo (basename($_SERVER['PHP_SELF']) == 'property-audit.php') ? 'border-r-4 border-blue-600 bg-blue-50 text-blue-600' : ''; ?>">
             <i class="fas fa-clipboard-check mr-3"></i> Property Audit
         </a></li>
-        <li><a href="#" data-module="procurement" class="menu-item flex items-center px-6 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600">
+        <li><a href="procurement.php" class="menu-item flex items-center px-6 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 <?php echo (basename($_SERVER['PHP_SELF']) == 'procurement.php') ? 'border-r-4 border-blue-600 bg-blue-50 text-blue-600' : ''; ?>">
             <i class="fas fa-shopping-cart mr-3"></i> Procurement
         </a></li>
-        <li><a href="#" data-module="reports" class="menu-item flex items-center px-6 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600">
+        <li><a href="reports.php" class="menu-item flex items-center px-6 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 <?php echo (basename($_SERVER['PHP_SELF']) == 'reports.php') ? 'border-r-4 border-blue-600 bg-blue-50 text-blue-600' : ''; ?>">
             <i class="fas fa-chart-bar mr-3"></i> Reports & Analytics
         </a></li>
-        <li><a href="#" data-module="user-roles" class="menu-item flex items-center px-6 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600">
+        <li><a href="user-roles.php" class="menu-item flex items-center px-6 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 <?php echo (basename($_SERVER['PHP_SELF']) == 'user-roles.php') ? 'border-r-4 border-blue-600 bg-blue-50 text-blue-600' : ''; ?>">
             <i class="fas fa-users-cog mr-3"></i> User Roles & Access
         </a></li>
     </ul>
