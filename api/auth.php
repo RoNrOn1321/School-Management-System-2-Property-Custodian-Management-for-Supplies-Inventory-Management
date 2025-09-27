@@ -26,6 +26,8 @@ switch($method) {
                 login($db);
             } elseif($_GET['action'] === 'logout') {
                 logout();
+            } elseif($_GET['action'] === 'register') {
+                register($db);
             }
         }
         break;
@@ -33,6 +35,94 @@ switch($method) {
         http_response_code(405);
         echo json_encode(array("message" => "Method not allowed"));
         break;
+}
+
+function register($db) {
+    try {
+        $data = json_decode(file_get_contents("php://input"));
+
+        if(!$data) {
+            http_response_code(400);
+            echo json_encode(array("error" => "Invalid JSON data"));
+            return;
+        }
+
+        // Validate required fields
+        if(empty($data->username) || empty($data->password) || empty($data->full_name) || empty($data->email)) {
+            http_response_code(400);
+            echo json_encode(array("error" => "All fields are required: username, password, full_name, email"));
+            return;
+        }
+
+        // Validate email format
+        if(!filter_var($data->email, FILTER_VALIDATE_EMAIL)) {
+            http_response_code(400);
+            echo json_encode(array("error" => "Invalid email format"));
+            return;
+        }
+
+        // Check if username already exists
+        $query = "SELECT id FROM users WHERE username = ?";
+        $stmt = $db->prepare($query);
+        $stmt->bindParam(1, $data->username);
+        $stmt->execute();
+
+        if($stmt->rowCount() > 0) {
+            http_response_code(409);
+            echo json_encode(array("error" => "Username already exists"));
+            return;
+        }
+
+        // Check if email already exists
+        $query = "SELECT id FROM users WHERE email = ?";
+        $stmt = $db->prepare($query);
+        $stmt->bindParam(1, $data->email);
+        $stmt->execute();
+
+        if($stmt->rowCount() > 0) {
+            http_response_code(409);
+            echo json_encode(array("error" => "Email already exists"));
+            return;
+        }
+
+        // Set default role if not provided
+        $role = isset($data->role) ? $data->role : 'staff';
+        $department = isset($data->department) ? $data->department : 'General';
+
+        // Hash password for production use
+        $hashedPassword = password_hash($data->password, PASSWORD_DEFAULT);
+
+        // Insert new user
+        $query = "INSERT INTO users (username, password, full_name, email, role, department, status, created_at) VALUES (?, ?, ?, ?, ?, ?, 'active', NOW())";
+        $stmt = $db->prepare($query);
+
+        if($stmt->execute([$data->username, $hashedPassword, $data->full_name, $data->email, $role, $department])) {
+            $userId = $db->lastInsertId();
+
+            // Log the registration
+            logActivity($db, $userId, 'register', 'users', $userId);
+
+            http_response_code(201);
+            echo json_encode(array(
+                "message" => "User registered successfully",
+                "user" => array(
+                    "id" => $userId,
+                    "username" => $data->username,
+                    "full_name" => $data->full_name,
+                    "email" => $data->email,
+                    "role" => $role,
+                    "department" => $department
+                )
+            ));
+        } else {
+            http_response_code(500);
+            echo json_encode(array("error" => "Failed to register user"));
+        }
+
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode(array("error" => "Registration error", "message" => $e->getMessage()));
+    }
 }
 
 function login($db) {
@@ -54,19 +144,32 @@ function login($db) {
         if($stmt->rowCount() > 0) {
             $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            // For demo purposes, using simple password check
-            // In production, use password_verify() with hashed passwords
+            // Check password - support both hashed passwords and demo accounts
             $demo_passwords = [
                 'admin' => 'admin123',
                 'custodian' => 'custodian123',
                 'staff' => 'staff123'
             ];
 
-            if(isset($demo_passwords[$data->username]) && $demo_passwords[$data->username] === $data->password) {
+            $passwordValid = false;
+
+            // First try hashed password verification
+            if(password_verify($data->password, $row['password'])) {
+                $passwordValid = true;
+            }
+            // Fallback to demo password check for existing demo accounts
+            elseif(isset($demo_passwords[$data->username]) && $demo_passwords[$data->username] === $data->password) {
+                $passwordValid = true;
+            }
+
+            if($passwordValid) {
                 session_start();
                 $_SESSION['user_id'] = $row['id'];
                 $_SESSION['username'] = $row['username'];
+                $_SESSION['full_name'] = $row['full_name'];
+                $_SESSION['email'] = $row['email'];
                 $_SESSION['role'] = $row['role'];
+                $_SESSION['department'] = $row['department'];
 
                 // Log the login
                 logActivity($db, $row['id'], 'login', 'users', $row['id']);

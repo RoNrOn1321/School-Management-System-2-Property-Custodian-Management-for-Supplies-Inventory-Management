@@ -121,6 +121,39 @@ class API {
             body: JSON.stringify(transactionData)
         });
     }
+
+    // Property Issuance
+    static async getPropertyIssuances() {
+        return this.request('property_issuance.php');
+    }
+
+    static async getPropertyIssuance(id) {
+        return this.request(`property_issuance.php?id=${id}`);
+    }
+
+    static async createPropertyIssuance(issuanceData) {
+        return this.request('property_issuance.php', {
+            method: 'POST',
+            body: JSON.stringify(issuanceData)
+        });
+    }
+
+    static async updatePropertyIssuance(id, issuanceData) {
+        return this.request(`property_issuance.php?id=${id}`, {
+            method: 'PUT',
+            body: JSON.stringify(issuanceData)
+        });
+    }
+
+    static async deletePropertyIssuance(id) {
+        return this.request(`property_issuance.php?id=${id}`, {
+            method: 'DELETE'
+        });
+    }
+
+    static async getAvailableAssets() {
+        return this.request('assets.php?status=available');
+    }
 }
 
 // Utility functions
@@ -153,4 +186,37 @@ function formatCurrency(amount) {
         style: 'currency',
         currency: 'PHP'
     }).format(amount);
+}
+
+// Legacy API call function for backward compatibility
+async function apiCall(url, method = 'GET', data = null) {
+    const config = {
+        method: method,
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    };
+
+    if (data && (method === 'POST' || method === 'PUT')) {
+        config.body = JSON.stringify(data);
+    }
+
+    try {
+        const response = await fetch(url, config);
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw new Error(result.error || result.message || 'Request failed');
+        }
+
+        return result;
+    } catch (error) {
+        console.error('API Call Error:', error);
+        throw error;
+    }
+}
+
+// Alert function for user notifications
+function showAlert(message, type = 'info') {
+    showNotification(message, type);
 }

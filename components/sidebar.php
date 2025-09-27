@@ -49,8 +49,8 @@
         <div class="flex items-center mb-4">
             <i class="fas fa-user-circle text-2xl text-gray-400 mr-3"></i>
             <div>
-                <p id="currentUsername" class="text-sm font-medium text-gray-700">Admin</p>
-                <p id="currentRole" class="text-xs text-gray-500">Administrator</p>
+                <p id="currentUsername" class="text-sm font-medium text-gray-700"><?php echo htmlspecialchars(getCurrentUser()['full_name'] ?? 'User'); ?></p>
+                <p id="currentRole" class="text-xs text-gray-500"><?php echo htmlspecialchars(ucfirst(getCurrentUser()['role'] ?? 'user')); ?></p>
             </div>
         </div>
         <button id="logoutBtn" class="w-full bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition duration-200">
@@ -78,5 +78,31 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+
+    // Logout functionality
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', async function() {
+            try {
+                const response = await fetch('api/auth.php?action=logout', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+
+                if (response.ok) {
+                    // Redirect to login page
+                    window.location.href = 'index.php';
+                } else {
+                    console.error('Logout failed');
+                    alert('Logout failed. Please try again.');
+                }
+            } catch (error) {
+                console.error('Error during logout:', error);
+                alert('An error occurred during logout. Please try again.');
+            }
+        });
+    }
 });
 </script>

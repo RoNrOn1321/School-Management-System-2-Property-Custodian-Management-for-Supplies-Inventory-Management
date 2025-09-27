@@ -1,12 +1,8 @@
 <?php
-session_start();
+require_once 'includes/auth_check.php';
 
-// Check if user is logged in (for now, we'll allow access without login for testing)
-// Uncomment the following lines when you want to require login:
-// if (!isset($_SESSION['user_id'])) {
-//     header('Location: index.php');
-//     exit();
-// }
+// Require authentication for this page
+requireAuth();
 
 $pageTitle = "Dashboard - Property Custodian Management";
 
