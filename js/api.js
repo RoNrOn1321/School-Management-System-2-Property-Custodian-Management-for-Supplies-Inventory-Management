@@ -154,6 +154,31 @@ class API {
     static async getAvailableAssets() {
         return this.request('assets.php?status=available');
     }
+
+    // Reports
+    static async getOverviewReport() {
+        return this.request('reports.php?action=overview');
+    }
+
+    static async getAssetsReport() {
+        return this.request('reports.php?action=assets');
+    }
+
+    static async getMaintenanceReport() {
+        return this.request('reports.php?action=maintenance');
+    }
+
+    static async getProcurementReport() {
+        return this.request('reports.php?action=procurement');
+    }
+
+    static async getAuditReport() {
+        return this.request('reports.php?action=audit');
+    }
+
+    static async getFinancialReport() {
+        return this.request('reports.php?action=financial');
+    }
 }
 
 // Utility functions
@@ -219,4 +244,55 @@ async function apiCall(url, method = 'GET', data = null) {
 // Alert function for user notifications
 function showAlert(message, type = 'info') {
     showNotification(message, type);
+}
+
+// Modal utility functions
+function openModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.classList.add('hidden');
+        document.body.style.overflow = 'auto';
+    }
+}
+
+// Enhanced notification functions for procurement.js compatibility
+function showSuccess(message) {
+    showNotification(message, 'success');
+}
+
+function showError(message) {
+    showNotification(message, 'error');
+}
+
+function showLoading() {
+    // Create or show loading indicator
+    let loadingIndicator = document.getElementById('loadingIndicator');
+    if (!loadingIndicator) {
+        loadingIndicator = document.createElement('div');
+        loadingIndicator.id = 'loadingIndicator';
+        loadingIndicator.className = 'fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50';
+        loadingIndicator.innerHTML = `
+            <div class="bg-white rounded-lg p-6 flex items-center space-x-4">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                <span class="text-gray-700">Loading...</span>
+            </div>
+        `;
+        document.body.appendChild(loadingIndicator);
+    }
+    loadingIndicator.classList.remove('hidden');
+}
+
+function hideLoading() {
+    const loadingIndicator = document.getElementById('loadingIndicator');
+    if (loadingIndicator) {
+        loadingIndicator.classList.add('hidden');
+    }
 }

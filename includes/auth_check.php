@@ -29,6 +29,10 @@ function isLoggedIn() {
     return isset($_SESSION['user_id']);
 }
 
+function isAuthenticated() {
+    return isset($_SESSION['user_id']);
+}
+
 function requireRole($role) {
     requireAuth();
     if ($_SESSION['role'] !== $role) {
